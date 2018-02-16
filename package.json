@@ -9,15 +9,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "coinspec-schema": "git+https://github.com/coinspec/schema.git",
     "ajv": "^6.1.1",
     "bluebird": "^3.5.1",
-    "ccxt": "^1.10.1120",
     "js-yaml": "^3.10.0",
     "mocha": "^5.0.1",
-    "sort-object": "^3.0.2",
-    "yawn-yaml": "^1.3.4"
+    "sort-object": "^3.0.2"
   },
   "devDependencies": {
-    "coinspec-schema": "git+https://github.com/coinspec/schema.git"
+    "ccxt": "^1.10.1120"
   }
 }
