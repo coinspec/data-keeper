@@ -28,12 +28,13 @@ class Data {
     this.loaded = true
   }
   loadSchemas () {
-    fs.readdirSync(path.join(__dirname, 'src')).forEach((s) => {
-      var pp = path.parse(s)
+    let schemaDir = path.join(__dirname, 'node_modules', 'coinspec-schema', 'src')
+    fs.readdirSync(schemaDir).forEach((s) => {
+      let pp = path.parse(s)
       if (pp.ext !== '.yaml') {
         return
       }
-      var schema = yaml.safeLoad(fs.readFileSync(path.join(__dirname, 'src', s)))
+      let schema = yaml.safeLoad(fs.readFileSync(path.join(schemaDir, s)))
       this.ajv.addSchema(schema, pp.name)
     })
   }
@@ -59,7 +60,7 @@ class Data {
     if (!this.loaded) {
       this.load()
     }
-    var output = {}
+    let output = {}
     this.collections.forEach((col) => {
       output[col] = []
       this.data[col].forEach((item) => {
@@ -84,9 +85,9 @@ class Package {
     this.loadIndex()
   }
   loadIndex () {
-    var file = path.join(this.dir, this.indexFn + '.yaml')
+    let file = path.join(this.dir, this.indexFn + '.yaml')
     if (!fs.existsSync(file)) {
-      var msg = `File not exists: ${file}`
+      let msg = `File not exists: ${file}`
       throw new Error(msg)
       return false
     }
@@ -97,7 +98,7 @@ class Package {
       if (f === this.indexFn + '.yaml') {
         return
       }
-      var pp = path.parse(f)
+      let pp = path.parse(f)
       switch (pp.ext) {
         case '.svg':
         case '.png':
@@ -116,7 +117,7 @@ class Package {
     fw.describe(this.id, () => {
       fw.it('Check index schema', () => {
         if (!this.data.ajv.validate(this.indexFn, this.dump())) {
-          var msg = `Index schema validation error: ${this.col}/${this.id}`
+          let msg = `Index schema validation error: ${this.col}/${this.id}`
             + `\n\n${JSON.stringify(this.data.ajv.errors, null, 2)}`
           throw new Error(msg)
           return false
@@ -131,7 +132,7 @@ class Package {
     })
   }
   dump () {
-    var output = Object.assign({}, this.index)
+    let output = Object.assign({}, this.index)
 
     // render files into object
     if (this.files.length > 0) {
@@ -139,7 +140,7 @@ class Package {
         if (!output[f.cat]) {
           output[f.cat] = {}
         }
-        var fn = path.join(this.dir, f.file)
+        let fn = path.join(this.dir, f.file)
         output[f.cat][f.name.replace('-', '_')] = {
           type: f.type,
           data: fs.readFileSync(fn).toString('base64')
@@ -150,20 +151,20 @@ class Package {
   }
 }
 
-var dir = process.cwd()
-var cmd = 'test'
+let dir = process.cwd()
+let cmd = 'test'
 if (!process.argv[2].match(/^node_modules/)) {
   cmd = process.argv[2]
 }
 
 console.log('Working directory: %s', dir)
 console.log('Command: %s', cmd)
-var data = new Data(dir)
+let data = new Data(dir)
 
 switch (cmd) {
   case 'build':
-    var dump = data.dump()
-    var fn = path.join('build', 'data.json')
+    let dump = data.dump()
+    let fn = path.join('build', 'data.json')
     fs.writeFileSync(fn, dump)
     console.log('Data written to file: %s', fn)
     break

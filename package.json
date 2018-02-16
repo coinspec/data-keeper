@@ -9,6 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ajv": "^6.1.1",
+    "bluebird": "^3.5.1",
+    "ccxt": "^1.10.1120",
+    "js-yaml": "^3.10.0"
+  },
+  "devDependencies": {
     "coinspec-schema": "git+https://github.com/coinspec/schema.git"
   }
 }
