@@ -15,15 +15,11 @@ function walkExchange(pick) {
 
   let exchangesDir = path.join('../data/exchanges')
   let target = path.join(exchangesDir, pick, 'exchange.yaml')
+  let pickDir = path.join(exchangesDir, pick)
   if (!fs.existsSync(target)) {
-    let pickDir = path.join(exchangesDir, pick)
-    if (!fs.existsSync(pickDir)) {
-      fs.mkdirSync(pickDir)
-    }
     base = {
       name: exchange.name
     }
-    console.log('Exchange created: %s', pick)
   } else {
     base = yaml.safeLoad(fs.readFileSync(target))
   }
@@ -46,6 +42,12 @@ function walkExchange(pick) {
       symbols.push(id)
     }
     content.markets = symbols.sort()
+
+    if (!fs.existsSync(pickDir)) {
+      fs.mkdirSync(pickDir)
+      console.log('Exchange created: %s', pick)
+    }
+
     fs.writeFileSync(target, yaml.safeDump(renderJSON(content)))
     console.log('Exchange updated: %s', pick)
   })
