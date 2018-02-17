@@ -15,12 +15,12 @@
     "ejs": "^2.5.7",
     "js-yaml": "^3.10.0",
     "mocha": "^5.0.1",
-    "sort-object": "^3.0.2"
+    "sort-object": "^3.0.2",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "ccxt": "^1.10.1120",
     "cheerio": "^1.0.0-rc.2",
-    "lodash": "^4.17.5",
     "request": "^2.83.0"
   }
 }

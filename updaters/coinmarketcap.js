@@ -22,12 +22,15 @@ function updateCoins (coins) {
     return new Promise((done) => {
       request(url, (err, resp, body) => {
         $ = cheerio.load(body)
-        let webids = {}
+        let webids = {
+          coinmarketcap: coin.id
+        }
         let links = {
           web: [],
           explorer: [],
           messageBoard: [],
           chats: [],
+          source: [],
         }
         $('div.bottom-margin-2x div.col-sm-4 ul li').each((i, el) => {
           let link = $(el).find('a')
@@ -50,7 +53,8 @@ function updateCoins (coins) {
           } else if (cat.match(/^Source Code$/)) {
             if (target.match(/github\.com/)) {
               webids.github = target.match(/github\.com\/([^\/]+)(\/|)/)[1]
-              webids.coinmarketcap = coin.id
+            } else {
+              links.source.push(target)
             }
           }
         })
@@ -76,7 +80,8 @@ function updateCoins (coins) {
           type: props.type || 'coin',
           web: links.web,
           resources: {
-            'message-board': links.messageBoard
+            'message-board': links.messageBoard,
+            'source': links.source
           },
           webids: webids,
           tools: {
