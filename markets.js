@@ -28,6 +28,15 @@ function walkExchange(pick) {
   if (!content.web && exchange.urls.www) {
     content.web = exchange.urls.www
   }
+  if (!content.countries && exchange.countries) {
+    content.countries = exchange.countries
+  }
+  if (!content.api) {
+    content.api = {}
+  }
+  if (!content.api.url && exchange.urls.api) {
+    content.api.url = exchange.urls.api
+  }
 
   return exchange.loadMarkets()
   .catch((e) => {
