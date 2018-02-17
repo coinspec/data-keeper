@@ -10,10 +10,10 @@ const listUrl = 'https://coinmarketcap.com/all/views/all/'
 const coinUrl = 'https://coinmarketcap.com/currencies/'
 
 function updateCoins (coins) {
-  //coins = coins.slice(0,10)
+  //coins = coins.slice(0,100)
   return Promise.each(coins, (coin) => {
     let url = coinUrl + coin.id
-    if (data.find('assets', coin.symbol.toLowerCase())) {
+    if (data.find('assets', coin.id)) {
       console.log('Coin %s found, skipping ..', coin.id)
       return Promise.resolve()
     }
@@ -46,20 +46,20 @@ function updateCoins (coins) {
             links.messageBoard.push(target)
           } else if (cat.match(/^Chat( \d|)$/)) {
             if (target.match(/\/t\.me\//)) {
-              webids.telegram = target
+              webids.telegram = target.replace(/^http[s]:\/\/t\.me\//, '')
             } else {
               links.chats.push(target)
             }
           } else if (cat.match(/^Source Code$/)) {
             if (target.match(/github\.com/)) {
-              webids.github = target.match(/github\.com\/([^\/]+)(\/|)/)[1]
+              webids.github = target.match(/github\.com\/(.+)/)[1]
             } else {
               links.source.push(target)
             }
           }
         })
         let propsText = $('div.bottom-margin-2x div.col-sm-4 ul li:last-child').text()
-        console.log(propsText)
+        //console.log(propsText)
         let props = {}
         if (propsText.match(/Coin/)) {
           props.type = 'coin'
@@ -79,18 +79,25 @@ function updateCoins (coins) {
           symbol: coin.symbol,
           type: props.type || 'coin',
           web: links.web,
-          resources: {
-            'message-board': links.messageBoard,
-            'source': links.source
-          },
+          resources: {},
           webids: webids,
           tools: {
             explorer: links.explorer
           },
           mineable: props.mineable || false,
         }
-        console.log(JSON.stringify(item, null, 2))
-        return data.update('assets', coin.symbol.toLowerCase(), item).then(() => {
+        if (links.source.length > 0) {
+          item.resources.source = links.source
+        }
+        if (links.messageBoard.length > 0) {
+          item.resources['message-board'] = links.messageBoard
+        }
+
+        if (Object.keys(item.resources).length === 0) {
+          delete item.resources
+        }
+        return data.update('assets', coin.id, item).then(() => {
+          console.log(JSON.stringify(item, null, 2))
           done()
         })
       })

@@ -11,20 +11,42 @@ class Data {
     }
     this.dir = dir
     this.loaded = false
-    this.collections = [ 'assets', 'exchanges', 'wallets' ]
+    this.collections = {
+      assets: {
+        schema: 'asset',
+        subdirs: true
+      },
+      exchanges: {
+        schema: 'exchange'
+      },
+      wallets: {
+        schema: 'wallet'
+      }
+    }
     this.ajv = new Ajv()
     this.data = {}
   }
   load () {
+    var self = this
     this.data = {}
-    this.loadSchemas()
-    this.collections.forEach((col) => {
-      fs.readdirSync(path.join(this.dir, col)).forEach((pkg) => {
-        if (!this.data[col]) {
-          this.data[col] = []
+    function readPkgDir (col, dir) {
+      fs.readdirSync(dir).forEach((pkg) => {
+        if (!self.data[col]) {
+          self.data[col] = []
         }
-        this.data[col].push(new Package(pkg, col, this))
+        self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
       })
+    }
+    this.loadSchemas()
+    Object.keys(this.collections).forEach((col) => {
+      let cdir = path.join(this.dir, col)
+      if (this.collections[col].subdirs) {
+        fs.readdirSync(cdir).forEach((scol) => {
+          readPkgDir(col, path.join(cdir, scol))
+        })
+      } else {
+        readPkgDir(col, cdir)
+      }
     })
     //console.log(this.data)
     this.loaded = true
@@ -50,7 +72,7 @@ class Data {
         it: () => {}
       }
     }
-    this.collections.forEach((col) => {
+    Object.keys(this.collections).forEach((col) => {
       fw.describe(col, () => {
         this.data[col].forEach((pkg) => {
           pkg.test(fw)
@@ -63,7 +85,7 @@ class Data {
       this.load()
     }
     let output = {}
-    this.collections.forEach((col) => {
+    Object.keys(this.collections).forEach((col) => {
       output[col] = []
       this.data[col].forEach((item) => {
         output[col].push(item.dump())
@@ -76,7 +98,7 @@ class Data {
       this.load()
     }
     let output = {}
-    this.collections.forEach((col) => {
+    Object.keys(this.collections).forEach((col) => {
       output[col] = this.data[col].length
     })
     return output
@@ -96,6 +118,22 @@ class Data {
       // this item doesnt exists, so we create
       // first directory
       let pkgDir = path.join(this.dir, collection, id)
+
+      // if its subdir collection
+      if (this.collections[collection].subdirs) {
+        let parentDirId = id.substr(0,1)
+        if (parentDirId.match(/^(\d+)$/)) {
+          parentDirId = '0'
+        } else if (parentDirId.match(/^[\w\d]+$/)) {
+        } else {
+          console.log('bad id !! = %s', parentDirId)
+        }
+        let parentDir = path.join(this.dir, collection, parentDirId)
+        if (!fs.existsSync(parentDir)) {
+          fs.mkdirSync(parentDir)
+        }
+        pkgDir = path.join(parentDir, id)
+      }
       if (!fs.existsSync(pkgDir)) {
         fs.mkdirSync(pkgDir)
       }
@@ -108,12 +146,12 @@ class Data {
 }
 
 class Package {
-  constructor (id, col, data) {
+  constructor (id, col, dir, data) {
     this.id = id
     this.col = col
     this.data = data
     this.indexFn = this.col.substr(0, this.col.length-1)
-    this.dir = path.join(this.data.dir, this.col, this.id)
+    this.dir = dir
     this.index = null
     this.files = []
 
@@ -128,6 +166,7 @@ class Package {
       return false
     }
     this.index = yaml.safeLoad(fs.readFileSync(file))
+    this.index.id = this.id
   }
   loadFiles () {
     fs.readdirSync(this.dir).forEach((f) => {
