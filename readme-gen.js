@@ -16,15 +16,18 @@ let args = {
     assets: {
       name: 'Assets',
       desc: 'eq. Coins or Tokens',
-      count: counts.assets
+      count: counts.assets,
+      schema: 'asset'
     },
     exchanges: {
       name: 'Exchanges',
-      count: counts.exchanges
+      count: counts.exchanges,
+      schema: 'exchange',
     },
     wallets: {
       name: 'Wallets',
-      count: counts.wallets
+      count: counts.wallets,
+      schema: 'wallet',
     }
   }
 }

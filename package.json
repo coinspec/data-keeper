@@ -18,6 +18,9 @@
     "sort-object": "^3.0.2"
   },
   "devDependencies": {
-    "ccxt": "^1.10.1120"
+    "ccxt": "^1.10.1120",
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.5",
+    "request": "^2.83.0"
   }
 }

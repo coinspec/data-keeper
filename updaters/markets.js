@@ -5,7 +5,7 @@ const yaml = require('js-yaml')
 const Promise = require('bluebird')
 const sortObj = require('sort-object')
 
-const schemaPath = 'node_modules/coinspec-schema/src/exchange.yaml'
+const schemaPath = '../node_modules/coinspec-schema/src/exchange.yaml'
 const exchangeSchema = yaml.safeLoad(fs.readFileSync(schemaPath))
 
 function walkExchange(pick) {
@@ -13,7 +13,7 @@ function walkExchange(pick) {
   let symbols = []
   let base = null
 
-  let exchangesDir = path.join('../data/exchanges')
+  let exchangesDir = path.join('../../data/exchanges')
   let target = path.join(exchangesDir, pick, 'exchange.yaml')
   let pickDir = path.join(exchangesDir, pick)
   if (!fs.existsSync(target)) {

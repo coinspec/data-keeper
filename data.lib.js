@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv')
 const yaml = require('js-yaml')
+const _ = require('lodash')
 
 class Data {
   constructor (dir) {
@@ -15,6 +16,7 @@ class Data {
     this.data = {}
   }
   load () {
+    this.data = {}
     this.loadSchemas()
     this.collections.forEach((col) => {
       fs.readdirSync(path.join(this.dir, col)).forEach((pkg) => {
@@ -78,6 +80,30 @@ class Data {
       output[col] = this.data[col].length
     })
     return output
+  }
+  find (collection, id) {
+    if (!this.loaded) {
+      this.load()
+    }
+    return _.find(this.data[collection], { id })
+  }
+  update (collection, id, item) {
+    if (!this.loaded) {
+      this.load()
+    }
+    let pkg = _.find(this.data[collection], { id: id })
+    if (!pkg) {
+      // this item doesnt exists, so we create
+      // first directory
+      let pkgDir = path.join(this.dir, collection, id)
+      if (!fs.existsSync(pkgDir)) {
+        fs.mkdirSync(pkgDir)
+      }
+      // then package
+      let indexFn = path.join(pkgDir, collection.substr(0, collection.length-1))
+      fs.writeFileSync(indexFn + '.yaml', yaml.safeDump(item))
+    }
+    return Promise.resolve()
   }
 }
 
