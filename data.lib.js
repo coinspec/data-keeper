@@ -21,6 +21,9 @@ class Data {
       },
       wallets: {
         schema: 'wallet'
+      },
+      trackers: {
+        schema: 'tracker'
       }
     }
     this.ajv = new Ajv()

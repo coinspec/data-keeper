@@ -28,6 +28,11 @@ let args = {
       name: 'Wallets',
       count: counts.wallets,
       schema: 'wallet',
+    },
+    trackers: {
+      name: 'Trackers',
+      count: counts.trackers,
+      schema: 'tracker',
     }
   }
 }
