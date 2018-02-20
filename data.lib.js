@@ -3,6 +3,7 @@ const path = require('path')
 const Ajv = require('ajv')
 const yaml = require('js-yaml')
 const _ = require('lodash')
+const schemas = require('coinspec-schema')
 
 class Data {
   constructor (dir) {
@@ -55,14 +56,8 @@ class Data {
     this.loaded = true
   }
   loadSchemas () {
-    let schemaDir = path.join(__dirname, 'node_modules', 'coinspec-schema', 'src')
-    fs.readdirSync(schemaDir).forEach((s) => {
-      let pp = path.parse(s)
-      if (pp.ext !== '.yaml') {
-        return
-      }
-      let schema = yaml.safeLoad(fs.readFileSync(path.join(schemaDir, s)))
-      this.ajv.addSchema(schema, pp.name)
+    Object.keys(schemas).forEach((schemaName) => {
+      this.ajv.addSchema(schemas[schemaName, ]schemaName)
     })
   }
   test (fw) {

@@ -2,7 +2,7 @@
   "name": "coinspec-data-tools",
   "version": "1.0.0",
   "description": "",
-  "main": "markets.js",
+  "main": "data.lib.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
