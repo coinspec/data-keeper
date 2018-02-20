@@ -57,7 +57,7 @@ class Data {
   }
   loadSchemas () {
     Object.keys(schemas).forEach((schemaName) => {
-      this.ajv.addSchema(schemas[schemaName, ]schemaName)
+      this.ajv.addSchema(schemas[schemaName], schemaName)
     })
   }
   test (fw) {
@@ -78,18 +78,21 @@ class Data {
       })
     })
   }
-  dump () {
+  dump (cols = null) {
     if (!this.loaded) {
       this.load()
     }
+    if (!cols) {
+      cols = Object.keys(this.collections)
+    }
     let output = {}
-    Object.keys(this.collections).forEach((col) => {
+    cols.forEach((col) => {
       output[col] = []
       this.data[col].forEach((item) => {
         output[col].push(item.dump())
       })
     })
-    return JSON.stringify(output, null, 2)
+    return output //JSON.stringify(output, null, 2)
   }
   counts () {
     if (!this.loaded) {
