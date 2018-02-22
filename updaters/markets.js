@@ -8,6 +8,8 @@ const sortObj = require('sort-object')
 const schemaPath = '../node_modules/coinspec-schema/src/exchange.yaml'
 const exchangeSchema = yaml.safeLoad(fs.readFileSync(schemaPath))
 
+const ignore = [ 'bitfinex2', 'coinmarketcap', 'hitbtc2' ]
+
 function walkExchange(pick) {
   let exchange = new ccxt[pick]()
   let symbols = []
@@ -74,6 +76,9 @@ function renderJSON(content) {
 }
 
 Promise.map(ccxt.exchanges, (e) => {
+  if (ignore.indexOf(e) !== -1) {
+    return null
+  }
   return walkExchange(e)
 })
 

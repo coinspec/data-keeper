@@ -29,6 +29,7 @@ class Data {
     }
     this.ajv = new Ajv()
     this.data = {}
+    this.loadSchemas()
   }
   load () {
     var self = this
@@ -41,7 +42,6 @@ class Data {
         self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
       })
     }
-    this.loadSchemas()
     Object.keys(this.collections).forEach((col) => {
       let cdir = path.join(this.dir, col)
       if (this.collections[col].subdirs) {
@@ -58,6 +58,8 @@ class Data {
   loadSchemas () {
     Object.keys(schemas).forEach((schemaName) => {
       this.ajv.addSchema(schemas[schemaName], schemaName)
+      let ckey = _.findKey(this.collections, { schema: schemaName })
+      this.collections[ckey].schemaObj = schemas[schemaName]
     })
   }
   test (fw) {
