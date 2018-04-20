@@ -39,6 +39,9 @@ class Data {
         if (!self.data[col]) {
           self.data[col] = []
         }
+        if (pkg.substring(0,1) === ".") {
+          return
+        }
         self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
       })
     }
