@@ -46,7 +46,7 @@ class Data {
       })
     }
     Object.keys(this.collections).forEach((col) => {
-      let cdir = path.join(this.dir, col)
+      let cdir = path.join(this.dir, 'collections', col)
       if (this.collections[col].subdirs) {
         fs.readdirSync(cdir).forEach((scol) => {
           readPkgDir(col, path.join(cdir, scol))
