@@ -228,7 +228,7 @@ class Package {
     if (this.files.length > 0) {
       this.files.forEach((f) => {
         if (f.cat === 'whitepapers') {
-          let githubPrefix = 'https://github.com/coinspec/data/blob/master/'
+          let githubPrefix = 'https://github.com/opencrypto-io/data/blob/master/'
           output.whitepaper = githubPrefix + [ this.col, this.id, f.base ].join('/')
           return
         }

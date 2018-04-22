@@ -5,7 +5,7 @@ const yaml = require('js-yaml')
 const Promise = require('bluebird')
 const sortObj = require('sort-object')
 
-const schemaPath = '../node_modules/coinspec-schema/src/exchange.yaml'
+const schemaPath = '../node_modules/opencrypto-schema/src/exchange.yaml'
 const exchangeSchema = yaml.safeLoad(fs.readFileSync(schemaPath))
 
 const ignore = [ 'bitfinex2', 'coinmarketcap', 'hitbtc2' ]
