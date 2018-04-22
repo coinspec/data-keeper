@@ -3,7 +3,7 @@ const path = require('path')
 const Ajv = require('ajv')
 const yaml = require('js-yaml')
 const _ = require('lodash')
-const schemas = require('coinspec-schema')
+const Schema = require('opencrypto-schema')
 
 class Data {
   constructor (dir) {
@@ -59,10 +59,10 @@ class Data {
     this.loaded = true
   }
   loadSchemas () {
-    Object.keys(schemas).forEach((schemaName) => {
-      this.ajv.addSchema(schemas[schemaName], schemaName)
+    Object.keys(Schema.models).forEach((schemaName) => {
+      this.ajv.addSchema(Schema.models[schemaName], schemaName)
       let ckey = _.findKey(this.collections, { schema: schemaName })
-      this.collections[ckey].schemaObj = schemas[schemaName]
+      this.collections[ckey].schemaObj = Schema.models[schemaName]
     })
   }
   test (fw) {

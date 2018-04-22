@@ -18,7 +18,7 @@ let data = new Data(dir)
 switch (cmd) {
   case 'build':
     let dump = data.dump()
-    let fn = path.join('build', 'data.json')
+    let fn = path.join('dist', 'data.json')
     fs.writeFileSync(fn, JSON.stringify(dump, null, 2))
     console.log('Data written to file: %s', fn)
     break
