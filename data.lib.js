@@ -3,15 +3,24 @@ const path = require('path')
 const Ajv = require('ajv')
 const yaml = require('js-yaml')
 const _ = require('lodash')
-const Schema = require('opencrypto-schema')
+
+var Schema = null
 
 class Data {
   constructor (dir) {
     if (!dir) {
       dir = process.cwd()
     }
+
     this.dir = dir
     this.loaded = false
+    this.schemaDir = path.join(this.dir, 'schema')
+
+    Schema = require(this.schemaDir)
+    if (!Schema) {
+      throw new Error('Schema not loaded: ' + this.schemaDir)
+    }
+
     this.collections = {
       assets: {
         schema: 'asset',
@@ -194,7 +203,11 @@ class Package {
       throw new Error(msg)
       return false
     }
-    this.index = yaml.safeLoad(fs.readFileSync(file))
+    try {
+      this.index = yaml.safeLoad(fs.readFileSync(file))
+    } catch (e) {
+      throw new Error('File syntax error: ' + file + "\n" + e)
+    }
     this.index.id = this.id
   }
   loadFiles () {

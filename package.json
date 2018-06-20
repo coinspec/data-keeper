@@ -1,6 +1,6 @@
 {
   "name": "opencrypto-data-tools",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "data.lib.js",
   "scripts": {
@@ -15,7 +15,6 @@
     "js-yaml": "^3.10.0",
     "lodash": "^4.17.5",
     "mocha": "^5.0.1",
-    "opencrypto-schema": "git+https://github.com/opencrypto-io/schema.git",
     "sort-object": "^3.0.2"
   },
   "devDependencies": {
