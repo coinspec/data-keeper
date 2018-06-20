@@ -17,15 +17,27 @@ class Data {
         schema: 'asset',
         subdirs: true
       },
+      clients: {
+        schema: 'client'
+      },
+      networks: {
+        schema: 'network'
+      },
+      blocks: {
+        schema: 'block'
+      },
+      transactions: {
+        schema: 'transaction'
+      },
       exchanges: {
         schema: 'exchange'
       },
-      wallets: {
-        schema: 'wallet'
+      markets: {
+        schema: 'market'
       },
-      trackers: {
-        schema: 'tracker'
-      }
+      core: {
+        schema: 'core'
+      },
     }
     this.ajv = new Ajv()
     this.ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
@@ -37,6 +49,9 @@ class Data {
     var self = this
     this.data = {}
     function readPkgDir (col, dir) {
+      if (!fs.existsSync(dir)) {
+        return
+      }
       fs.readdirSync(dir).forEach((pkg) => {
         if (!self.data[col]) {
           self.data[col] = []
@@ -64,6 +79,9 @@ class Data {
     Object.keys(Schema.models).forEach((schemaName) => {
       this.ajv.addSchema(Schema.models[schemaName], schemaName)
       let ckey = _.findKey(this.collections, { schema: schemaName })
+      if (!ckey) {
+        throw new Error('No defined collection: ' + schemaName)
+      }
       this.collections[ckey].schemaObj = Schema.models[schemaName]
     })
   }
@@ -79,6 +97,9 @@ class Data {
     }
     Object.keys(this.collections).forEach((col) => {
       fw.describe(col, () => {
+        if (!this.data[col]) {
+          return
+        }
         this.data[col].forEach((pkg) => {
           pkg.test(fw)
         })
