@@ -22,10 +22,13 @@ class Data {
     }
 
     this.collections = {
-      assets: {
+      projects: {
+        schema: 'project'
+      },
+      /*assets: {
         schema: 'asset',
         subdirs: true
-      },
+      },*/
       clients: {
         schema: 'client'
       },
