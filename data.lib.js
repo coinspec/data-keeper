@@ -25,10 +25,9 @@ class Data {
       projects: {
         schema: 'project'
       },
-      /*assets: {
-        schema: 'asset',
-        subdirs: true
-      },*/
+      assets: {
+        schema: 'asset'
+      },
       clients: {
         schema: 'client'
       },
@@ -84,7 +83,6 @@ class Data {
         readPkgDir(col, cdir)
       }
     })
-    //console.log(this.data)
     this.loaded = true
   }
   loadSchemas () {

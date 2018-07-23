@@ -13,11 +13,10 @@ let src = fs.readFileSync(path.join(dataDir, 'README.src.md')).toString()
 let options = {}
 let args = {
   collections: {
-    assets: {
-      name: 'Assets',
-      desc: 'eq. Coins or Tokens',
-      count: counts.assets,
-      schema: 'asset'
+    projects: {
+      name: 'Projects',
+      count: counts.projects,
+      schema: 'project'
     },
     exchanges: {
       name: 'Exchanges',

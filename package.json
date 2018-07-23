@@ -20,6 +20,6 @@
   "devDependencies": {
     "ccxt": "^1.10.1120",
     "cheerio": "^1.0.0-rc.2",
-    "request": "^2.83.0"
+    "request": "^2.87.0"
   }
 }
