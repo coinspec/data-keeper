@@ -126,6 +126,7 @@ class Data {
     let output = {}
     cols.forEach((col) => {
       output[col] = []
+      if (!this.data[col]) return null
       this.data[col].forEach((item) => {
         output[col].push(item.dump())
       })
