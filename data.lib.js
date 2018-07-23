@@ -139,6 +139,10 @@ class Data {
     }
     let output = {}
     Object.keys(this.collections).forEach((col) => {
+      if (!this.data[col]) {
+        output[col] = 0
+        return
+      }
       output[col] = this.data[col].length
     })
     return output
