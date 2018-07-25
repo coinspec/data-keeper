@@ -73,16 +73,15 @@ class Data {
         self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
       })
     }
-    Object.keys(this.collections).forEach((col) => {
-      let cdir = path.join(this.dir, 'collections', col)
-      if (this.collections[col].subdirs) {
-        fs.readdirSync(cdir).forEach((scol) => {
-          readPkgDir(col, path.join(cdir, scol))
-        })
-      } else {
-        readPkgDir(col, cdir)
-      }
-    })
+    let cdir = path.join(this.dir, 'projects')
+    let col = 'projects'
+    if (this.collections[col].subdirs) {
+      fs.readdirSync(cdir).forEach((scol) => {
+        readPkgDir(col, path.join(cdir, scol))
+      })
+    } else {
+      readPkgDir(col, cdir)
+    }
     this.loaded = true
   }
   loadSchemas () {
