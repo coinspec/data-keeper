@@ -10,7 +10,7 @@ const exchangeSchema = yaml.safeLoad(fs.readFileSync(schemaPath))
 
 const ignore = [ 'bitfinex2', 'coinmarketcap', 'hitbtc2' ]
 
-function walkExchange(pick) {
+function walkExchange (pick) {
   let exchange = new ccxt[pick]()
   let symbols = []
   let base = null
@@ -41,30 +41,30 @@ function walkExchange(pick) {
   }
 
   return exchange.loadMarkets()
-  .catch((e) => {
-    console.log(e)
-  })
-  .then((markets) => {
-    if (!markets) {
-      return null
-    }
-    for (let m in markets) {
-      let id = markets[m].symbol
-      symbols.push(id)
-    }
-    content.markets = symbols.sort()
+    .catch((e) => {
+      console.log(e)
+    })
+    .then((markets) => {
+      if (!markets) {
+        return null
+      }
+      for (let m in markets) {
+        let id = markets[m].symbol
+        symbols.push(id)
+      }
+      content.markets = symbols.sort()
 
-    if (!fs.existsSync(pickDir)) {
-      fs.mkdirSync(pickDir)
-      console.log('Exchange created: %s', pick)
-    }
+      if (!fs.existsSync(pickDir)) {
+        fs.mkdirSync(pickDir)
+        console.log('Exchange created: %s', pick)
+      }
 
-    fs.writeFileSync(target, yaml.safeDump(renderJSON(content)))
-    console.log('Exchange updated: %s', pick)
-  })
+      fs.writeFileSync(target, yaml.safeDump(renderJSON(content)))
+      console.log('Exchange updated: %s', pick)
+    })
 }
 
-function renderJSON(content) {
+function renderJSON (content) {
   // sort by schema
   content = sortObj(content, { keys: Object.keys(exchangeSchema.properties) })
   for (let k in content) {
@@ -81,4 +81,3 @@ Promise.map(ccxt.exchanges, (e) => {
   }
   return walkExchange(e)
 })
-

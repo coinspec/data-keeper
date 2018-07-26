@@ -10,7 +10,7 @@ const listUrl = 'https://coinmarketcap.com/all/views/all/'
 const coinUrl = 'https://coinmarketcap.com/currencies/'
 
 function updateCoins (coins) {
-  //coins = coins.slice(0,100)
+  // coins = coins.slice(0,100)
   return Promise.each(coins, (coin) => {
     let url = coinUrl + coin.id
     if (data.find('assets', coin.id)) {
@@ -19,7 +19,7 @@ function updateCoins (coins) {
     }
 
     console.log('Updating coin: %s [%s]', coin.name, url)
-    return new Promise((done) => {
+    return new Promise((resolve) => {
       request(url, (err, resp, body) => {
         $ = cheerio.load(body)
         let webids = {
@@ -30,14 +30,14 @@ function updateCoins (coins) {
           explorer: [],
           messageBoard: [],
           chats: [],
-          source: [],
+          source: []
         }
         $('div.bottom-margin-2x div.col-sm-4 ul li').each((i, el) => {
           let link = $(el).find('a')
           let cat = link.text()
           let target = link.attr('href')
           if (!cat.trim()) {
-            
+
           } else if (cat.match(/^Website( \d|)$/)) {
             links.web.push(target)
           } else if (cat.match(/^Explorer( \d|)$/)) {
@@ -59,16 +59,13 @@ function updateCoins (coins) {
           }
         })
         let propsText = $('div.bottom-margin-2x div.col-sm-4 ul li:last-child').text()
-        //console.log(propsText)
+        // console.log(propsText)
         let props = {}
         if (propsText.match(/Coin/)) {
           props.type = 'coin'
-        }
-        else if (propsText.match(/Token/)) {
+        } else if (propsText.match(/Token/)) {
           props.type = 'token'
-        }
-        else if (propsText.match(/Rank/)) {}
-        else {
+        } else if (propsText.match(/Rank/)) {} else {
           throw new Error('Unexpected prop text = ' + propsText)
         }
         if (propsText.match(/\nMineable\n/)) {
@@ -84,7 +81,7 @@ function updateCoins (coins) {
           tools: {
             explorer: links.explorer
           },
-          mineable: props.mineable || false,
+          mineable: props.mineable || false
         }
         if (links.source.length > 0) {
           item.resources.source = links.source
@@ -107,7 +104,7 @@ function updateCoins (coins) {
 
 function getList () {
   console.log('Downloading list: %s', listUrl)
-  return new Promise((done) => {
+  return new Promise((resolve) => {
     request(listUrl, (err, resp, body) => {
       let $ = cheerio.load(body)
       let coins = []
@@ -115,7 +112,7 @@ function getList () {
         coins.push({
           id: $(el).attr('id').replace(/^id-/, ''),
           name: $(el).find('td.currency-name a.currency-name-container').text(),
-          symbol: $(el).find('td.col-symbol').text(),
+          symbol: $(el).find('td.col-symbol').text()
         })
       })
       return done(coins)
@@ -131,4 +128,3 @@ getList().then((coins) => {
     console.log('done')
   })
 })
-

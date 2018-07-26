@@ -14,4 +14,3 @@ data.data.exchanges.forEach((e) => {
 
 console.log(total)
 console.log(counts)
-

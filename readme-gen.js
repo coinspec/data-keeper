@@ -21,17 +21,17 @@ let args = {
     exchanges: {
       name: 'Exchanges',
       count: counts.exchanges,
-      schema: 'exchange',
+      schema: 'exchange'
     },
     wallets: {
       name: 'Wallets',
       count: counts.wallets,
-      schema: 'wallet',
+      schema: 'wallet'
     },
     trackers: {
       name: 'Trackers',
       count: counts.trackers,
-      schema: 'tracker',
+      schema: 'tracker'
     }
   }
 }
@@ -42,4 +42,3 @@ fs.writeFileSync(outputFn, output)
 console.log('README.md generated: %s', outputFn)
 console.log('-------------')
 console.log(output)
-

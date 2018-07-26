@@ -26,30 +26,43 @@ class Data {
         schema: 'project'
       },
       assets: {
-        schema: 'asset'
+        schema: 'asset',
+        parent: 'project'
       },
       clients: {
-        schema: 'client'
+        schema: 'client',
+        parent: 'project'
       },
       networks: {
-        schema: 'network'
+        schema: 'network',
+        parent: 'asset'
       },
       blocks: {
-        schema: 'block'
+        schema: 'block',
+        parent: 'network'
       },
       transactions: {
-        schema: 'transaction'
+        schema: 'transaction',
+        parent: 'block'
       },
       exchanges: {
-        schema: 'exchange'
+        schema: 'exchange',
+        parent: 'project'
       },
       markets: {
-        schema: 'market'
+        schema: 'market',
+        parent: 'exchange'
       },
       core: {
         schema: 'core'
-      },
+      }
     }
+    this.collectionsModels = {}
+    Object.keys(this.collections).forEach(c => {
+      let ic = this.collections[c]
+      ic.plural = c
+      this.collectionsModels[ic.schema] = ic
+    })
     this.ajv = new Ajv()
     this.ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
 
@@ -67,7 +80,7 @@ class Data {
         if (!self.data[col]) {
           self.data[col] = []
         }
-        if (pkg.substring(0,1) === ".") {
+        if (pkg.substring(0, 1) === '.') {
           return
         }
         self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
@@ -84,6 +97,21 @@ class Data {
     }
     this.loaded = true
   }
+  strictSchema (obj, path) {
+    if (obj.type == 'object' && obj.additionalProperties === undefined) {
+      obj.additionalProperties = false
+    }
+    if (obj.type === undefined) {
+    }
+    Object.keys(obj).forEach(i => {
+      if (typeof obj[i] === 'object' && obj[i].constructor === Object) {
+        obj[i] = this.strictSchema(obj[i], path + '/' + i)
+      }
+      if (typeof obj[i] === 'array' && obj[i].constructor === Array) {
+      }
+    })
+    return obj
+  }
   loadSchemas () {
     Object.keys(Schema.models).forEach((schemaName) => {
       this.ajv.addSchema(Schema.models[schemaName], schemaName)
@@ -91,7 +119,7 @@ class Data {
       if (!ckey) {
         throw new Error('No defined collection: ' + schemaName)
       }
-      this.collections[ckey].schemaObj = Schema.models[schemaName]
+      this.collections[ckey].schemaObj = this.strictSchema(Schema.models[schemaName], schemaName)
     })
   }
   test (fw) {
@@ -123,14 +151,17 @@ class Data {
       cols = Object.keys(this.collections)
     }
     let output = {}
-    cols.forEach((col) => {
-      output[col] = []
-      if (!this.data[col]) return null
+    let col = 'projects'
+    output[col] = []
+    if (this.data[col]) {
       this.data[col].forEach((item) => {
         output[col].push(item.dump())
       })
-    })
-    return output //JSON.stringify(output, null, 2)
+    }
+    output.metadata = {
+      time: new Date()
+    }
+    return output // JSON.stringify(output, null, 2)
   }
   counts () {
     if (!this.loaded) {
@@ -164,7 +195,7 @@ class Data {
 
       // if its subdir collection
       if (this.collections[collection].subdirs) {
-        let parentDirId = id.substr(0,1)
+        let parentDirId = id.substr(0, 1)
         if (parentDirId.match(/^(\d+)$/)) {
           parentDirId = '0'
         } else if (parentDirId.match(/^[\w\d]+$/)) {
@@ -181,7 +212,7 @@ class Data {
         fs.mkdirSync(pkgDir)
       }
       // then package
-      let indexFn = path.join(pkgDir, collection.substr(0, collection.length-1))
+      let indexFn = path.join(pkgDir, collection.substr(0, collection.length - 1))
       fs.writeFileSync(indexFn + '.yaml', yaml.safeDump(item))
     }
     return Promise.resolve()
@@ -193,7 +224,7 @@ class Package {
     this.id = id
     this.col = col
     this.data = data
-    this.indexFn = this.col.substr(0, this.col.length-1)
+    this.indexFn = this.col.substr(0, this.col.length - 1)
     this.dir = dir
     this.index = null
     this.files = []
@@ -209,47 +240,70 @@ class Package {
       return false
     }
     try {
-      this.index = yaml.safeLoad(fs.readFileSync(file))
+      let ind = { id: this.id }
+      this.index = Object.assign(ind, yaml.safeLoad(fs.readFileSync(file)))
     } catch (e) {
-      throw new Error('File syntax error: ' + file + "\n" + e)
+      throw new Error('File syntax error: ' + file + '\n' + e)
     }
     this.index.id = this.id
   }
   loadFiles () {
+    let subs = _.map(this.data.collections, i => i.schema)
+    function isSubtype (pp) {
+      let m = pp.name.match(new RegExp('^(' + subs.join('|') + ')-([a-z0-9]+)-'))
+      if (!m) {
+        return false
+      }
+      return [ m[1], m[2] ]
+    }
+    function fixSubs (subs, pp) {
+      let bas = subs.join('-')
+      let ck = ['name', 'base']
+      ck.forEach(t => {
+        pp[t] = pp[t].replace(new RegExp('^' + bas + '-'), '')
+      })
+      return pp
+    }
     fs.readdirSync(this.dir).forEach((f) => {
       if (f === this.indexFn + '.yaml') {
         return
       }
       let pp = path.parse(f)
+      let subtype = isSubtype(pp)
+      if (subtype) {
+        pp = fixSubs(subtype, pp)
+      }
+
+      let cat = null
       switch (pp.ext) {
         case '.svg':
         case '.png':
-          this.files.push({
-            file: f,
-            cat: 'images',
-            name: pp.name,
-            base: pp.base,
-            type: pp.ext.substr(1),
-          })
+          cat = 'images'
           break
         case '.pdf':
-          this.files.push({
-            file: f,
-            cat: 'whitepapers',
-            name: pp.name,
-            base: pp.base,
-            type: pp.ext.substr(1)
-          })
+          cat = 'whitepapers'
+          break
+        default:
+          throw new Error('Unknown filetype: ' + pp.ext)
           break
       }
+      let out = {
+        file: f,
+        subtype,
+        cat,
+        name: pp.name,
+        base: pp.base,
+        type: pp.ext.substr(1)
+      }
+      this.files.push(out)
     })
   }
   test (fw) {
     fw.describe(this.id, () => {
-      fw.it('Check index schema', () => {
+      fw.it('Check schema', () => {
         if (!this.data.ajv.validate(this.indexFn, this.dump())) {
-          let msg = `Index schema validation error: ${this.col}/${this.id}`
-            + `\n\n${JSON.stringify(this.data.ajv.errors, null, 2)}`
+          let msg = `Index schema validation error: ${this.col}/${this.id}` +
+            `\n\n${JSON.stringify(this.data.ajv.errors, null, 2)}`
           throw new Error(msg)
           return false
         }
@@ -268,16 +322,33 @@ class Package {
     // render files into object
     if (this.files.length > 0) {
       this.files.forEach((f) => {
+        let target = output
+        if (f.subtype) {
+          target = null
+          let sn = this.data.collectionsModels[f.subtype[0]]
+          if (sn.parent === 'project') {
+            output[sn.plural].forEach(st => { target = st })
+          } else {
+            let snp = this.data.collectionsModels[sn.parent]
+            output[snp.plural].forEach(st => {
+              st[sn.plural].forEach(stt => { target = stt })
+            })
+          }
+          if (!target) {
+            throw new Error('Bad file target: ' + JSON.stringify(f, null, 2))
+          }
+        }
+
         if (f.cat === 'whitepapers') {
           let githubPrefix = 'https://github.com/opencrypto-io/data/blob/master/'
-          output.whitepaper = githubPrefix + [ this.col, this.id, f.base ].join('/')
+          target.whitepaper = githubPrefix + [ this.col, this.id, f.base ].join('/')
           return
         }
-        if (!output[f.cat]) {
-          output[f.cat] = {}
+        if (!target[f.cat]) {
+          target[f.cat] = {}
         }
         let fn = path.join(this.dir, f.file)
-        output[f.cat][f.name.replace('-', '_')] = {
+        target[f.cat][f.name.replace('-', '_')] = {
           type: f.type,
           data: fs.readFileSync(fn).toString('base64')
         }

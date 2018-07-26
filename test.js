@@ -31,5 +31,3 @@ switch (cmd) {
     data.test({ describe, it })
     break
 }
-
-
