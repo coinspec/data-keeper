@@ -21,6 +21,8 @@ class Data {
       throw new Error('Schema not loaded: ' + this.schemaDir)
     }
 
+    this.webIds = yaml.safeLoad(fs.readFileSync(path.join(this.dir, 'db', 'webids.yaml')))
+
     this.collections = {
       projects: {
         schema: 'project'
@@ -65,6 +67,22 @@ class Data {
     })
     this.ajv = new Ajv()
     this.ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
+    this.ajv.addKeyword('opencrypto-validation', {
+      type: "object",
+      validate: (type, obj) => {
+        if (type === 'webid') {
+          Object.keys(obj).forEach(kid => {
+            if (['custom'].indexOf(kid.split('/')[0]) !== -1) {
+              return true
+            }
+            if (!this.webIds[kid]) {
+              throw new Error('Non existent webid: ' + kid)
+            }
+          })
+        }
+        return true
+      }
+    })
 
     this.data = {}
     this.loadSchemas()
@@ -86,7 +104,7 @@ class Data {
         self.data[col].push(new Package(pkg, col, path.join(dir, pkg), self))
       })
     }
-    let cdir = path.join(this.dir, 'projects')
+    let cdir = path.join(this.dir, 'db/projects')
     let col = 'projects'
     if (this.collections[col].subdirs) {
       fs.readdirSync(cdir).forEach((scol) => {
@@ -132,6 +150,12 @@ class Data {
         it: () => {}
       }
     }
+
+    fw.describe('common', () => {
+      fw.it('Check webids', () => {
+      })
+    })
+
     Object.keys(this.collections).forEach((col) => {
       fw.describe(col, () => {
         if (!this.data[col]) {
