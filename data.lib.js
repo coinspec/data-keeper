@@ -310,7 +310,7 @@ class Package {
       })
       if (this.files.length > 0) {
         this.files.forEach((f) => {
-          fw.it(`Check file "${f.base}"`, () => {
+          fw.it(`Check file "${f.file}"`, () => {
           })
         })
       }
