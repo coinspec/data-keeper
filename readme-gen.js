@@ -40,5 +40,5 @@ let outputFn = path.join(dataDir, 'README.md')
 
 fs.writeFileSync(outputFn, output)
 console.log('README.md generated: %s', outputFn)
-console.log('-------------')
-console.log(output)
+//console.log('-------------')
+//console.log(output)
