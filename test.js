@@ -2,8 +2,9 @@
 
 const fs = require('fs')
 const path = require('path')
-
 const Data = require('./data.lib.js').Data
+
+const outputDir = 'dist'
 
 let dir = process.cwd()
 let cmd = 'test'
@@ -18,7 +19,10 @@ let data = new Data(dir)
 switch (cmd) {
   case 'build':
     let dump = data.dump()
-    let fn = path.join('dist', 'data.json')
+    let fn = path.join(outputDir, 'data.json')
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir)
+    }
     fs.writeFileSync(fn, JSON.stringify(dump, null, 2))
     console.log('Data written to file: %s', fn)
     break

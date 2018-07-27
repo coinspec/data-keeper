@@ -1,8 +1,9 @@
 const fs = require('fs')
 const path = require('path')
+const execSync = require('child_process').execSync
+const _ = require('lodash')
 const Ajv = require('ajv')
 const yaml = require('js-yaml')
-const _ = require('lodash')
 
 var Schema = null
 
@@ -182,8 +183,10 @@ class Data {
         output[col].push(item.dump())
       })
     }
+    output.webids = this.webIds
     output.metadata = {
-      time: new Date()
+      time: new Date(),
+      commit: execSync('git rev-parse HEAD').toString().trim()
     }
     return output // JSON.stringify(output, null, 2)
   }
