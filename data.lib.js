@@ -184,9 +184,11 @@ class Data {
       })
     }
     output.webids = this.webIds
+    let commit = execSync('git rev-parse HEAD').toString().trim()
     output.metadata = {
-      time: new Date(),
-      commit: execSync('git rev-parse HEAD').toString().trim()
+      commit,
+      time: new Date(execSync('git show -s --format=%ci '+commit)),
+      time_build: new Date()
     }
     return output // JSON.stringify(output, null, 2)
   }
