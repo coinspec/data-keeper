@@ -69,7 +69,7 @@ class Data {
     this.ajv = new Ajv()
     this.ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
     this.ajv.addKeyword('opencrypto-validation', {
-      type: "object",
+      type: 'object',
       validate: (type, obj) => {
         if (type === 'webid') {
           Object.keys(obj).forEach(kid => {

@@ -19,12 +19,12 @@ let data = new Data(dir)
 
 switch (cmd) {
   case 'build':
-    async function doBuild() {
+    async function doBuild () {
       await buildData()
       await buildContributors()
       await buildWebapp()
     }
-    async function buildData() {
+    async function buildData () {
       let dump = data.dump()
       let fn = path.join(outputDir, 'data.json')
       if (!fs.existsSync(outputDir)) {
@@ -33,13 +33,13 @@ switch (cmd) {
       fs.writeFileSync(fn, JSON.stringify(dump, null, 2))
       console.log('Data written to file: %s', fn)
     }
-    async function buildContributors() {
-      let contributors = await axios.get("https://api.github.com/repos/opencrypto-io/data/contributors")
-      let contributorsFn = path.join(outputDir, 'contributors.json');
+    async function buildContributors () {
+      let contributors = await axios.get('https://api.github.com/repos/opencrypto-io/data/contributors')
+      let contributorsFn = path.join(outputDir, 'contributors.json')
       fs.writeFileSync(contributorsFn, JSON.stringify(contributors.data, null, 2))
       console.log('Contributors written: %s', contributorsFn)
     }
-    async function buildWebapp() {
+    async function buildWebapp () {
       let webappDir = path.join(__dirname, 'webapp')
       fs.readdirSync(webappDir).forEach(f => {
         let src = path.join(webappDir, f)
