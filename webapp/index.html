@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>OpenCrypto Data</title>
+        <title>OpenCrypto Data - Data platform for Developers</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
         <!--link href="styles.css" rel="stylesheet" /-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
@@ -337,12 +337,12 @@
         <script>
           function app() {
             var defs = {
-              Projects: { path: "projects[]" },
-              Assets: { path: "projects[].assets[]" },
-              Networks: { path: "projects[].assets[].networks[]" },
-              Exchanges: { path: "projects[].exchanges[]" },
-              Clients: { path: "projects[].clients[]" },
-              Apps: { path: "projects[].apps[]" }
+              Projects: { model: 'project', path: "projects[]" },
+              Assets: { model: 'asset', path: "projects[].assets[]" },
+              Networks: { model: 'network', path: "projects[].assets[].networks[]" },
+              Exchanges: { model: 'exchange', path: "projects[].exchanges[]" },
+              Clients: { model: 'client', path: "projects[].clients[]" },
+              Apps: { model: 'app', path: "projects[].apps[]" }
             }
             var counts = {}
             var contributors = []
@@ -352,6 +352,16 @@
 
             var format = "yaml"
             var metadata = null
+            var sampleId = "ethereum"
+            var query = ""
+            var model = "project"
+            var exampleIds = {
+              project: "ethereum",
+              asset: "ethereum:eth",
+              network: "ethereum:eth:main",
+              exchange: "makerdao:oasis",
+              market: "makerdao:oasis:market"
+            }
 
             var Counter = {
               oninit: async function() {
@@ -402,6 +412,35 @@
               format = type
               formatSource(sampleSource)
             }
+            async function setQuery(q) {
+              query = q
+              redrawSource()
+            }
+            async function setModel(q, prev) {
+              model = q
+              if (q !== prev) {
+                return setId(exampleIds[q])
+              }
+              redrawSource()
+            }
+            async function setId(q) {
+              sampleId = q
+              sampleSourceProject = q.split(":")[0]
+              redrawSource()
+            }
+            async function redrawSource() {
+              if (query === "") {
+                query = undefined
+              }
+              try {
+                sampleSource = await ocd.get(model, sampleId, query)
+              } catch (e) {
+                console.error("Query error: " + e)
+                sampleSource = e.toString()
+              }
+              formatSource(sampleSource)
+              m.redraw()
+            }
             function formatSource(res) {
               let dump = null
               if (format === "json") {
@@ -413,12 +452,31 @@
             }
             var DataSample = {
               oninit: async function() {
-                sampleSource = await ocd.get("project", sampleSourceProject)
-                formatSource(sampleSource)
-                m.redraw()
+                redrawSource()
+                //m.redraw()
               },
               view: function() {
                 return m("div", [
+                  m("div", [
+                    m(".level", { style: "margin-bottom: 0.7em;" }, [
+                      m('.level-item', [
+                        m("label", { style: "padding-right: 0.5em;"}, "Model: "),
+                        m(".select", m("select", { type: "text", value: model, oninput: m.withAttr("value", setModel), style: "background-color: rgba(255, 255, 255, 0.3); border: none;" }, Object.keys(defs).map(function(k) {
+                          return m("option", { id: defs[k].model }, defs[k].model)
+                        })))
+                      ]),
+                      m('.level-item', [
+                        m("label", { style: "padding-right: 0.5em;"}, "Id: "),
+                        m("input.input", { type: "text", value: sampleId, oninput: m.withAttr("value", setId), style: "background-color: rgba(255, 255, 255, 0.3); border: none;" })
+                      ]),
+                    ]),
+                    m(".level", { style: "margin-bottom: 0.7em;" }, [
+                      m('.level-item', [
+                        m("label", { style: "padding-right: 0.5em;"}, "Query: "),
+                        m("input.input", { type: "text", value: query, oninput: m.withAttr("value", setQuery), style: "background-color: rgba(255, 255, 255, 0.3); border: none;" })
+                      ])
+                    ])
+                  ]),
                   m("pre", m("code", m.trust(formattedSource))),
                   m("div", { style: "padding-top: 0.5em;" }, [
                     m(".level", [
