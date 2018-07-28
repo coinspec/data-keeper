@@ -341,7 +341,8 @@
 
         <script>
           function app() {
-            var defs = {
+            const client = new ocd.Client({ dataUrl: 'data.json' })
+            const defs = {
               Projects: { model: 'project', path: "projects[]" },
               Assets: { model: 'asset', path: "projects[].assets[]" },
               Networks: { model: 'network', path: "projects[].assets[].networks[]" },
@@ -376,7 +377,7 @@
                     counts[d] = 0
                     return null
                   }
-                  counts[d] = await ocd.query(cd.path + " | length(@)")
+                  counts[d] = await client.query(cd.path + " | length(@)")
                 })
               },
               view: function() {
@@ -394,7 +395,7 @@
               oninit: function() {
                 contributors = []
                 return m.request({
-                  url: "https://data.opencrypto.io/contributors.json"
+                  url: "contributors.json"
                 }).then(function(res) {
                   contributors = res.slice(0, 40)
                 })
@@ -438,7 +439,7 @@
                 query = undefined
               }
               try {
-                sampleSource = await ocd.get(model, sampleId, query)
+                sampleSource = await client.get(model, sampleId, query)
               } catch (e) {
                 console.error("Query error: " + e)
                 sampleSource = e.toString()
@@ -509,7 +510,7 @@
             }
             var LastCommit = {
               oninit: async function() {
-                metadata = await ocd.query("metadata")
+                metadata = await client.query("metadata")
                 m.redraw()
               },
               view: function() {
