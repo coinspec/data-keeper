@@ -34,8 +34,22 @@ switch (cmd) {
       console.log('Data written to file: %s', fn)
     }
     async function buildContributors () {
-      let contributors = await axios.get('https://api.github.com/repos/opencrypto-io/data/contributors')
-      let contributorsFn = path.join(outputDir, 'contributors.json')
+      const contributorsFn = path.join(outputDir, 'contributors.json')
+      let headers = {}
+      if (process.env['GITHUB_TOKEN']) {
+        headers.Authorization = "token " + process.env['GITHUB_TOKEN']
+      }
+      let contributors = null
+      try {
+        contributors = await axios({
+          url: 'https://api.github.com/repos/opencrypto-io/data/contributors',
+          headers
+        })
+      } catch (e) {
+        console.error('Cannot get contributors: ' + e)
+        console.error(JSON.stringify(e.response.data))
+        process.exit(1)
+      }
       fs.writeFileSync(contributorsFn, JSON.stringify(contributors.data, null, 2))
       console.log('Contributors written: %s', contributorsFn)
     }
