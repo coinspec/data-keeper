@@ -362,7 +362,6 @@
                     return null
                   }
                   counts[d] = await ocd.query(cd.path + " | length(@)")
-                  console.log("::", d, "==" , counts[d])
                 })
               },
               view: function() {
@@ -383,7 +382,6 @@
                   url: "https://data.opencrypto.io/contributors.json"
                 }).then(function(res) {
                   contributors = res.slice(0, 40)
-                  console.log(contributors.length)
                 })
               },
               view: function() {
