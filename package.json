@@ -1,5 +1,5 @@
 {
-  "name": "opencrypto-data-tools",
+  "name": "opencrypto-data-build-tools",
   "version": "1.0.1",
   "description": "",
   "main": "data.lib.js",
