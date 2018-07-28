@@ -380,7 +380,7 @@
               oninit: function() {
                 contributors = []
                 return m.request({
-                  url: "https://opencrypto-io.github.io/data/contributors.json"
+                  url: "https://data.opencrypto.io/contributors.json"
                 }).then(function(res) {
                   contributors = res.slice(0, 40)
                   console.log(contributors.length)
