@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const Data = require('./data.lib.js').Data
 const axios = require('axios')
+const chalk =  require('chalk')
 
 const outputDir = 'dist'
 
@@ -70,6 +71,10 @@ switch (cmd) {
     break
 
   case 'test':
-    data.test({ describe, it })
+    try {
+      data.test({ describe, it })
+    } catch(e) {
+      console.error(chalk.white.bgRed('Error!', e))
+    }
     break
 }
