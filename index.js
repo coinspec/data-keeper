@@ -24,6 +24,7 @@ switch (cmd) {
       await buildData()
       await buildContributors()
       await buildWebapp()
+      console.log('Build done')
     }
     async function buildData () {
       let dump = data.dump()
