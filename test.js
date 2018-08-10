@@ -55,7 +55,7 @@ switch (cmd) {
       console.log('Contributors written: %s', contributorsFn)
     }
     async function buildWebapp () {
-      let webappDir = path.join(__dirname, 'webapp')
+      let webappDir = path.join(__dirname, 'node_modules/opencrypto-data-web/dist')
       fs.readdirSync(webappDir).forEach(f => {
         let src = path.join(webappDir, f)
         let dest = path.join(outputDir, f)
