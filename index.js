@@ -72,10 +72,6 @@ switch (cmd) {
     break
 
   case 'test':
-    try {
-      data.test({ describe, it })
-    } catch(e) {
-      console.error(chalk.white.bgRed('Error!', e))
-    }
+    data.test({ describe, it })
     break
 }
