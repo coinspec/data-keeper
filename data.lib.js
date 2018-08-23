@@ -24,42 +24,19 @@ class Data {
 
     this.webIds = yaml.safeLoad(fs.readFileSync(path.join(this.dir, 'db', 'webids.yaml')))
 
-    this.collections = {
-      projects: {
-        schema: 'project'
-      },
-      assets: {
-        schema: 'asset',
-        parent: 'project'
-      },
-      clients: {
-        schema: 'client',
-        parent: 'project'
-      },
-      networks: {
-        schema: 'network',
-        parent: 'asset'
-      },
-      blocks: {
-        schema: 'block',
-        parent: 'network'
-      },
-      transactions: {
-        schema: 'transaction',
-        parent: 'block'
-      },
-      exchanges: {
-        schema: 'exchange',
-        parent: 'project'
-      },
-      markets: {
-        schema: 'market',
-        parent: 'exchange'
-      },
-      core: {
-        schema: 'core'
-      }
+    this.collectionsInit = {
+      projects: { schema: 'project' },
+      ledgers: { schema: 'ledger', path: ['project'], root: 'project' },
+      assets: { schema: 'asset', path: ['project'], root: 'project' },
+      clients: { schema: 'client', path: ['project'], root: 'project' },
+      networks: { schema: 'network', path: ['project', 'ledger'], root: 'ledger' },
+      blocks: { schema: 'block', path: ['project', 'ledger', 'network' ], root: 'network' },
+      transactions: { schema: 'transaction', path: ['project', 'ledger', 'network', 'block'], root: 'block' },
+      exchanges: { schema: 'exchange', path: ['project'], root: 'project' },
+      markets: { schema: 'market', path: ['project','exchange'], root: 'exchange' },
+      core: { schema: 'core' }
     }
+    this.collections = _.cloneDeep(this.collectionsInit)
     this.collectionsModels = {}
     Object.keys(this.collections).forEach(c => {
       let ic = this.collections[c]
@@ -184,6 +161,7 @@ class Data {
       })
     }
     output.webids = this.webIds
+    output.collections = this.collectionsInit
     let commit = execSync('git rev-parse HEAD').toString().trim()
     output.metadata = {
       commit,
@@ -355,10 +333,10 @@ class Package {
         if (f.subtype) {
           target = null
           let sn = this.data.collectionsModels[f.subtype[0]]
-          if (sn.parent === 'project') {
+          if (sn.path[sn.path.length-1] === 'project') {
             output[sn.plural].forEach(st => { target = st })
           } else {
-            let snp = this.data.collectionsModels[sn.parent]
+            let snp = this.data.collectionsModels[sn.path[sn.path.length-1]]
             output[snp.plural].forEach(st => {
               st[sn.plural].forEach(stt => { target = stt })
             })
@@ -376,6 +354,7 @@ class Package {
         if (!target[f.cat]) {
           target[f.cat] = {}
         }
+        //target = this.enhance(target, [this.id], f.subtype[0])
         let fn = path.join(this.dir, f.file)
         target[f.cat][f.name.replace('-', '_')] = {
           type: f.type,
@@ -383,7 +362,22 @@ class Package {
         }
       })
     }
-    return output
+    return this.enhance(output)
+  }
+  enhance (obj, path=[], type='project') {
+    // every subobjects
+    _.toArray(_.pickBy(this.data.collections, { root: type })).forEach(mod => {
+      if (obj[mod.plural] && obj[mod.plural].length) {
+        let cpath = path.concat([obj.id])
+        const om = obj[mod.plural]
+        om.forEach((modi, i) => {
+          obj[mod.plural][i].pid = cpath.concat([modi.id]).join(':')
+          // every sub-subobjects
+          obj[mod.plural][i] = this.enhance(modi, cpath, mod.schema)
+        })
+      }
+    })
+    return obj
   }
 }
 
