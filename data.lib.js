@@ -162,10 +162,15 @@ class Data {
     }
     output.webids = this.webIds
     output.collections = this.collectionsInit
-    let commit = execSync('git rev-parse HEAD').toString().trim()
+    function gitExec (cmd) {
+      return execSync(`git ${cmd}`).toString().trim()
+    }
+    let commit = gitExec('rev-parse HEAD')
     output.metadata = {
       commit,
-      time: new Date(execSync('git show -s --format=%ci '+commit)),
+      branch: gitExec('rev-parse --abbrev-ref HEAD'),
+      commits_count: gitExec('rev-list --count HEAD'),
+      time: new Date(gitExec('show -s --format=%ci '+commit)),
       time_build: new Date()
     }
     return output // JSON.stringify(output, null, 2)

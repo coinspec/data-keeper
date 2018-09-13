@@ -14,8 +14,16 @@ if (!process.argv[2].match(/^node_modules/)) {
   cmd = process.argv[2]
 }
 
+let subcmd = null
+if (process.argv[3]) {
+  subcmd = process.argv[3]
+}
+
 console.log('Working directory: %s', dir)
 console.log('Command: %s', cmd)
+if (subcmd) {
+  console.log('Sub-command: %s', subcmd)
+}
 let data = new Data(dir)
 
 switch (cmd) {
@@ -23,7 +31,9 @@ switch (cmd) {
     async function doBuild () {
       await buildData()
       await buildContributors()
-      await buildWebapp()
+      if (subcmd === 'full') {
+        await buildWebapp()
+      }
       console.log('Build done')
     }
     async function buildData () {
