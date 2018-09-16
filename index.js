@@ -73,7 +73,7 @@ switch (cmd) {
       execSync(`mkdir -p tmp`)
       execSync(`curl -L -s -o tmp/web.zip ${webRepoZip}`)
       console.log('Unpacking ..')
-      execSync(`tar zxf tmp/web.zip -C tmp`)
+      execSync(`unzip tmp/web.zip -d tmp/`)
       console.log('Web package prepared')
 
       // process
