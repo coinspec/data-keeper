@@ -2,11 +2,13 @@
 
 const fs = require('fs')
 const path = require('path')
+const execSync = require('child_process').execSync
+
 const Data = require('./data.lib.js').Data
 const axios = require('axios')
-const chalk =  require('chalk')
 
 const outputDir = 'dist'
+const webRepoZip = 'https://github.com/opencrypto-io/data-web/archive/master.zip'
 
 let dir = process.cwd()
 let cmd = 'test'
@@ -66,7 +68,16 @@ switch (cmd) {
       console.log('Contributors written: %s', contributorsFn)
     }
     async function buildWebapp () {
-      let webappDir = path.join(process.cwd(), 'node_modules/opencrypto-data-web/dist')
+      // download package
+      console.log('Downloading web package ..')
+      execSync(`mkdir -p tmp`)
+      execSync(`curl -L -s -o tmp/web.zip ${webRepoZip}`)
+      console.log('Unpacking ..')
+      execSync(`tar zxf tmp/web.zip -C tmp`)
+      console.log('Web package prepared')
+
+      // process
+      let webappDir = path.join(process.cwd(), 'tmp/data-web-master/dist')
       fs.readdirSync(webappDir).forEach(f => {
         let src = path.join(webappDir, f)
         let dest = path.join(outputDir, f)
